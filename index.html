@@ -613,7 +613,7 @@ details.more .note{margin-top:6px}
         <div class="row" style="justify-content:flex-start"><button class="sbtn" id="bkSave">バックアップを保存</button><label class="sbtn upl" style="padding:8px 16px;border-style:solid">バックアップから戻す<input type="file" id="bkLoad" accept=".json,application/json"></label></div>
         <p class="note" id="bkMsg" hidden></p>
         <textarea id="bkText" hidden readonly style="width:100%;height:90px;font:12px monospace;margin-top:6px"></textarea>
-        <p class="note">バージョン 1.5.3（2026-10-14・アプリ版）</p>
+        <p class="note">バージョン 1.5.4（2026-10-16・アプリ版）</p>
         <p class="note">音声：VOICEVOX:ずんだもん／英語の声は Kokoro（Apache License 2.0）で作成</p>
         <p class="note">書き順データ：ひらがな・カタカナは KanjiVG（© Ulrich Apel, CC BY-SA 3.0, kanjivg.tagaini.net）を使用しています。</p>
       </section>
@@ -1000,7 +1000,7 @@ function renderZukan(){renderZGroups();const p=pool();const own=p.filter(m=>S.ow
   $('#zGrid').innerHTML=shown.map(m=>S.owned[m.id]?`<button data-id="${m.id}" aria-label="${esc(m.name)}">${cardHTML(m,{count:S.owned[m.id]})}</button>`:`<div class="mcard unknown">${m.no?`<span class="mno">No.${m.no}</span>`:''}<div class="art">？</div><div class="mname">？？？</div><div class="stars">${'★'.repeat(m.rarity)}${'☆'.repeat(3-m.rarity)}</div></div>`).join('')}
 $('#zTabs').addEventListener('click',e=>{const b=e.target.closest('[data-z]');if(!b)return;zMode=b.dataset.z;zPage=0;renderZukan();$('#v-zukan').scrollTop=0});
 document.querySelectorAll('[data-zpager]').forEach(pg=>pg.addEventListener('click',e=>{const b=e.target.closest('[data-zp]');if(!b||b.disabled)return;zPage+=b.dataset.zp==='next'?1:-1;renderZukan();$('#v-zukan').scrollTop=0}));
-$('#zGrid').addEventListener('click',e=>{const b=e.target.closest('[data-id]');if(!b)return;const m=pool().find(x=>x.id===b.dataset.id);if(!m)return;
+$('#zGrid').addEventListener('click',e=>{const b=e.target.closest('[data-id]');if(!b)return;const m=allItems().find(x=>x.id===b.dataset.id);if(!m)return;
   $('#bigCard').innerHTML=cardHTML(m,{count:S.owned[m.id]});$('#bigView').hidden=false;hush();say(m.name,'ja-JP',.9)});
 $('#bigClose').onclick=()=>{$('#bigView').hidden=true;hush()};$('#bigView').addEventListener('click',e=>{if(e.target.id==='bigView'){$('#bigView').hidden=true;hush()}});
 
