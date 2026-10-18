@@ -327,7 +327,11 @@ details.more .note{margin-top:6px}
 .subh{margin:14px 0 8px;font-size:15px}
 .gnames{display:flex;flex-direction:column;gap:8px}
 .gnames label{display:grid;grid-template-columns:minmax(0,1fr);gap:4px;font-size:13px;font-weight:700;color:var(--ink-soft)}
+.gitem{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:end}
 .gnames input{font:inherit;font-size:17px;font-weight:900;color:var(--ink);padding:8px 10px;border:2px solid var(--ink);border-radius:10px;min-width:0}
+.pick{display:flex;flex-direction:column;align-items:center;gap:8px;max-width:520px}
+.pick-t{margin:0;font-weight:900;font-size:clamp(16px,2.2vw,20px)}
+.pick .zgroups{justify-content:center}
 /* parent */
 .panel{width:100%;max-width:880px;background:var(--mat);border:3px solid var(--ink);border-radius:24px;padding:20px 22px 26px;display:flex;flex-direction:column;gap:22px;-webkit-user-select:text;user-select:text}
 .panel h2{margin:0;font-size:24px}
@@ -478,6 +482,7 @@ details.more .note{margin-top:6px}
       <div class="mbody"><div class="mlabel">もじガチャ</div><div class="handle" aria-hidden="true"></div><div class="slot"></div></div>
     </div>
     <div class="gacha-side">
+    <div class="pick" id="pickBox" hidden><p class="pick-t">どの ガチャに する？</p><div class="zgroups" id="pickGroups"></div></div>
     <button class="spin-btn" id="spinBtn">まわす
       <span class="cost"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="#FFC23A" stroke="#23284F" stroke-width="3"/><circle cx="20" cy="20" r="11" fill="none" stroke="#D98E00" stroke-width="2.5"/><path d="M20 12.5l2.3 4.7 5.2.7-3.8 3.6.9 5.1-4.6-2.4-4.6 2.4.9-5.1-3.8-3.6 5.2-.7z" fill="#fff"/></svg><b id="costNum">10</b></span>
     </button>
@@ -545,7 +550,8 @@ details.more .note{margin-top:6px}
         <div class="field"><label for="setDaily">1日に引ける回数</label><select id="setDaily"><option value="0">制限なし</option><option value="3">3回</option><option value="5">5回</option><option value="10">10回</option></select></div>
         <div class="field"><label for="setMix">オリジナルモンスターも入れる</label><input type="checkbox" id="setMix"></div>
         <div class="field" style="align-items:flex-start"><label>ガチャに入れるグループ</label><div class="packs" id="packList"></div></div>
-        <h4 class="subh">グループ（ずかん）の なまえ</h4>
+        <h4 class="subh">グループ（ずかん）の なまえ・削除</h4>
+        <p class="note">グループを削除すると、そのグループの画像がこのタブレットから消えます。ゲットした記録は残るので、同じグループ名で読み込み直すとずかんに戻ります。さいしょから入っているモンスターは消せません（ガチャの設定で入れない子にできます）。</p>
         <div class="gnames" id="gNames"></div>
         <p class="note">画像を追加するときに付けた「グループ」ごとに、この子のガチャに入れるかを選べます。子どもごとに好きなキャラクターを分けたいときに使ってください。</p>
         <p class="note">コインの目安：きいてえらぶ 1問 最大2枚（5問で1ラウンド）、なぞりがき 1文字 2枚、えをみてかく 1文字 3枚（どちらも3文字で1ラウンド）。2回目以降で正解しても1枚もらえます。もっている子が出たら2枚もどります。</p>
@@ -613,7 +619,7 @@ details.more .note{margin-top:6px}
         <div class="row" style="justify-content:flex-start"><button class="sbtn" id="bkSave">バックアップを保存</button><label class="sbtn upl" style="padding:8px 16px;border-style:solid">バックアップから戻す<input type="file" id="bkLoad" accept=".json,application/json"></label></div>
         <p class="note" id="bkMsg" hidden></p>
         <textarea id="bkText" hidden readonly style="width:100%;height:90px;font:12px monospace;margin-top:6px"></textarea>
-        <p class="note">バージョン 1.5.4（2026-10-16・アプリ版）</p>
+        <p class="note">バージョン 1.6（2026-10-18・アプリ版）</p>
         <p class="note">音声：VOICEVOX:ずんだもん／英語の声は Kokoro（Apache License 2.0）で作成</p>
         <p class="note">書き順データ：ひらがな・カタカナは KanjiVG（© Ulrich Apel, CC BY-SA 3.0, kanjivg.tagaini.net）を使用しています。</p>
       </section>
@@ -950,7 +956,12 @@ function cardHTML(m,o={}){return`<div class="mcard r${m.rarity}">${o.isNew?'<spa
 
 /* ---------- ガチャ ---------- */
 const CAP={1:'#7CC8FF',2:'#FF7A7A',3:'#FFC23A'};
-function renderGacha(){rollDay();$('#costNum').textContent=S.settings.cost;
+function renderPick(){const p=pool();const groups=[...new Set(p.map(groupOf))];if(S.pick&&!groups.includes(S.pick))S.pick='';{const l=document.querySelector('.mlabel');if(l)l.textContent=S.pick?`${S.pick} ガチャ`:'もじガチャ'}
+  $('#pickBox').hidden=groups.length<2;if(groups.length<2)return;
+  const cnt=g=>{const q=p.filter(m=>groupOf(m)===g);return `${q.filter(m=>S.owned[m.id]).length}/${q.length}`};
+  $('#pickGroups').innerHTML=`<button data-pk="" aria-pressed="${!S.pick}">みんな<small>${p.filter(m=>S.owned[m.id]).length}/${p.length}</small></button>`+groups.map(g=>`<button data-pk="${esc(g)}" aria-pressed="${S.pick===g}">${esc(g)}<small>${cnt(g)}</small></button>`).join('')}
+$('#pickGroups').addEventListener('click',e=>{const b=e.target.closest('[data-pk]');if(!b||spinning)return;S.pick=b.dataset.pk;save();renderPick();chime('coin')});
+function renderGacha(){rollDay();renderPick();$('#costNum').textContent=S.settings.cost;
   const cols=['#FF7A7A','#7CC8FF','#FFC23A','#9BE3B0','#CDB8FF','#FFB27A'];const pos=[[12,52],[38,58],[62,52],[24,30],[52,30],[70,72],[8,74],[36,78],[58,6],[30,6]];
   $('#dome').innerHTML=pos.map(([x,y],i)=>`<i style="left:${x}%;top:${y}%;--cc:${cols[i%cols.length]};transform:rotate(${i*37}deg)"></i>`).join('');
   gachaStatus()}
@@ -958,7 +969,8 @@ function gachaStatus(){const left=S.settings.daily>0?S.settings.daily-S.day.gach
   if(left<=0)msg.textContent='きょうの ガチャは おしまい。また あした！';
   else if(S.coins<S.settings.cost)msg.textContent=`あと ${S.settings.cost-S.coins}まい コインを あつめよう！`;
   else msg.textContent=left===Infinity?'まわせるよ！':`きょうは あと ${left}かい まわせるよ`}
-function drawMon(){const p=pool();const W={1:70,2:25,3:5};const rs=[1,2,3].filter(r=>p.some(m=>m.rarity===r));let x=Math.random()*rs.reduce((a,r)=>a+W[r],0),R=rs[rs.length-1];
+function gachaPool(){const p=pool();const g=S.pick;if(!g)return p;const q=p.filter(m=>groupOf(m)===g);return q.length?q:p}
+function drawMon(){const p=gachaPool();const W={1:70,2:25,3:5};const rs=[1,2,3].filter(r=>p.some(m=>m.rarity===r));let x=Math.random()*rs.reduce((a,r)=>a+W[r],0),R=rs[rs.length-1];
   for(const r of rs){x-=W[r];if(x<=0){R=r;break}}const c=p.filter(m=>m.rarity===R);return c[Math.floor(Math.random()*c.length)]}
 let G=null,spinning=false;
 $('#spinBtn').onclick=()=>{if(spinning)return;rollDay();if(timeUp())return restNow();const cost=S.settings.cost;
@@ -973,8 +985,9 @@ $('#capsule').onclick=()=>{const c=$('#capsule');if(c.classList.contains('open')
   setTimeout(()=>{c.hidden=true;const card=$('#gCard');card.innerHTML=cardHTML(G.m,{isNew:G.isNew});card.hidden=false;
     const tag=$('#gTag');tag.textContent=G.m.pack==='さくひん'?(G.m.by?`${G.m.by}の さくひんだ！`:'さくひんが でた！'):G.isNew?'あたらしい なかまだ！':'もってるよ！ コイン +2';tag.hidden=false;$('#grActions').hidden=false;
     say(G.m.name,'ja-JP',.9);say(G.isNew?'が なかまに なった！':'。もう もってるね','ja-JP',1);
-    if(G.isNew&&pool().every(x=>S.owned[x.id])){tag.textContent='コンプリート！ ぜんぶ あつめた！';chime('fan');say('ぜんぶ あつめたね！ すごい！')}
-    spinning=false;gachaStatus()},450)};
+    if(G.isNew&&S.pick&&gachaPool().every(x=>S.owned[x.id])&&!pool().every(x=>S.owned[x.id])){tag.textContent=`${S.pick} コンプリート！`;chime('fan');say('ぜんぶ あつめたね！ すごい！')}
+    else if(G.isNew&&pool().every(x=>S.owned[x.id])){tag.textContent='コンプリート！ ぜんぶ あつめた！';chime('fan');say('ぜんぶ あつめたね！ すごい！')}
+    spinning=false;gachaStatus();renderPick()},450)};
 $('#grAgain').onclick=()=>{$('#gResult').hidden=true;hush();gachaStatus()};
 $('#grZukan').onclick=()=>{$('#gResult').hidden=true;zMode='got';zPage=0;show('zukan')};
 
@@ -1249,13 +1262,19 @@ document.addEventListener('pointerdown',()=>{if(!BGM.on&&S.settings.bgm!==false)
 document.addEventListener('visibilitychange',()=>{if(document.hidden)bgmStop()});
 
 /* ---------- グループ名の変更 ---------- */
-function renderGNames(){const packs=allPacks();$('#gNames').innerHTML=[`<label>（さいしょから入っている モンスター）<input type="text" data-gold="__orig" value="${esc(ORIG)}" enterkeyhint="done"></label>`].concat(packs.map(pk=>`<label>${CUSTOM.filter(m=>packOf(m)===pk).length}まい<input type="text" data-gold="${esc(pk)}" value="${esc(pk)}" enterkeyhint="done"></label>`)).join('')}
+function renderGNames(){const packs=allPacks();$('#gNames').innerHTML=[`<label>（さいしょから入っている モンスター）<input type="text" data-gold="__orig" value="${esc(ORIG)}" enterkeyhint="done"></label>`].concat(packs.map(pk=>`<div class="gitem"><label>${CUSTOM.filter(m=>packOf(m)===pk).length}まい<input type="text" data-gold="${esc(pk)}" value="${esc(pk)}" enterkeyhint="done"></label><button class="sbtn warn" data-gdel="${esc(pk)}">このグループを削除</button></div>`)).join('')}
 function renamePackInProfiles(a,b){const fix=o=>{const l=o&&o.settings&&o.settings.packs;if(!Array.isArray(l)||!l.includes(a))return false;o.settings.packs=[...new Set(l.map(x=>x===a?b:x))];return true};
   if(fix(S))save();P.list.forEach(p=>{if(p.id===P.cur)return;try{const o=JSON.parse(localStorage.getItem(keyFor(p.id))||'null');if(fix(o))localStorage.setItem(keyFor(p.id),JSON.stringify(o))}catch(e){}})}
 $('#gNames').addEventListener('change',async e=>{const inp=e.target.closest('[data-gold]');if(!inp)return;const old=inp.dataset.gold,nw=inp.value.trim().slice(0,30);
   if(!nw){inp.value=old==='__orig'?ORIG:old;return}
   if(old==='__orig'){ORIG=nw;try{localStorage.setItem('mojigacha.orig',nw)}catch(_){}renderParent();return}
   if(nw===old)return;const list=CUSTOM.filter(m=>packOf(m)===old);list.forEach(m=>m.pack=nw);await putMany(list);renamePackInProfiles(old,nw);if(zGroup===old)zGroup=nw;renderParent()});
+
+$('#gNames').addEventListener('click',e=>{const b=e.target.closest('[data-gdel]');if(!b)return;const pk=b.dataset.gdel;const list=CUSTOM.filter(m=>packOf(m)===pk);
+  armed(b,`もう一度押すと ${list.length}まい 消えます`,()=>{list.forEach(m=>{try{URL.revokeObjectURL(m.url)}catch(_){}delMon(m.id)});CUSTOM=CUSTOM.filter(m=>packOf(m)!==pk);
+    const fix=o=>{const l=o&&o.settings&&o.settings.packs;if(!Array.isArray(l)||!l.includes(pk))return false;o.settings.packs=l.filter(x=>x!==pk);return true};
+    if(fix(S))save();P.list.forEach(p=>{if(p.id===P.cur)return;try{const o=JSON.parse(localStorage.getItem(keyFor(p.id))||'null');if(fix(o))localStorage.setItem(keyFor(p.id),JSON.stringify(o))}catch(_){}});
+    if(zGroup===pk)zGroup='';renderParent()})});
 /* ---------- 起動 ---------- */
 rollDay();updateCoins();updateWho();show('who');loadCustom();
 </script>
