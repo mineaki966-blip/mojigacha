@@ -256,7 +256,7 @@ html,body{overflow-x:hidden}
   .who{font-size:16px;max-width:38vw}
 }
 .gatecard p{font-size:26px}
-.gatebtns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;width:100%}
+.gatebtns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;width:100%}
 .gatebtns button{border:3px solid var(--ink);border-radius:18px;background:var(--mat);box-shadow:0 4px 0 var(--ink);font-size:28px;font-weight:900;padding:10px 0;font-variant-numeric:tabular-nums}
 .timebar{width:100%;max-width:1080px;height:10px;border-radius:999px;background:var(--mat);border:2px solid var(--ink);overflow:hidden}
 .timebar i{display:block;height:100%;background:var(--abc);transition:width .5s}
@@ -332,6 +332,24 @@ details.more .note{margin-top:6px}
 .pick{display:flex;flex-direction:column;align-items:center;gap:8px;max-width:520px}
 .pick-t{margin:0;font-weight:900;font-size:clamp(16px,2.2vw,20px)}
 .pick .zgroups{justify-content:center}
+.pick-title{font-family:var(--f-pop);font-weight:400;font-size:clamp(24px,4vw,36px);margin:0}
+.banners{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px;width:100%;max-width:1080px}
+.banner{display:flex;flex-direction:column;gap:10px;text-align:left;border:4px solid var(--ink);border-radius:26px;background:var(--mat);box-shadow:0 6px 0 var(--ink);padding:0 0 14px;overflow:hidden}
+.banner:active{transform:translateY(4px);box-shadow:0 2px 0 var(--ink)}
+.banner.on{outline:5px solid var(--coin);outline-offset:3px}
+.bhead{display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--bc);padding:12px 16px;border-bottom:4px solid var(--ink)}
+.bname{font-family:var(--f-pop);font-size:clamp(20px,3vw,26px);color:#fff;text-shadow:0 2px 0 rgba(35,40,79,.35)}
+.bnow{background:var(--coin);border:2px solid var(--ink);border-radius:999px;padding:2px 10px;font-weight:900;font-size:13px;white-space:nowrap}
+.bthumbs{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding-inline:12px}
+.bt{position:relative;aspect-ratio:1;border-radius:12px;background:#EEF4FB;display:grid;place-items:center;overflow:hidden;border:2px solid var(--line)}
+.bt.r3{background:radial-gradient(circle,#FFF6D6 30%,#FFE08A 100%);border-color:var(--coin-deep)}
+.bt img,.bt svg{width:90%;height:90%;object-fit:contain}
+.bnew{position:absolute;right:2px;bottom:2px;font-style:normal;font-size:10px;font-weight:900;background:var(--red);color:#fff;border-radius:6px;padding:0 4px}
+.bfoot{display:flex;align-items:center;gap:10px;padding-inline:14px}
+.bbar{flex:1;height:12px;border-radius:999px;background:#EEF1F7;border:2px solid var(--ink);overflow:hidden}.bbar i{display:block;height:100%;background:var(--abc)}
+.bcnt{font-weight:900;font-variant-numeric:tabular-nums}
+.bdone{font-weight:900;color:var(--coin-deep)}
+.bgo{align-self:center;background:var(--coin);border:3px solid var(--ink);border-radius:999px;padding:8px 22px;font-weight:900;font-size:18px;box-shadow:0 3px 0 var(--ink)}
 /* parent */
 .panel{width:100%;max-width:880px;background:var(--mat);border:3px solid var(--ink);border-radius:24px;padding:20px 22px 26px;display:flex;flex-direction:column;gap:22px;-webkit-user-select:text;user-select:text}
 .panel h2{margin:0;font-size:24px}
@@ -476,13 +494,18 @@ details.more .note{margin-top:6px}
   </section>
 
   <!-- GACHA -->
+  <section class="view scroll" id="v-pick" hidden>
+    <h2 class="pick-title">どの ガチャを まわす？</h2>
+    <div class="banners" id="pickList"></div>
+  </section>
+
   <section class="view" id="v-gacha" hidden>
     <div class="machine" id="machine">
       <div class="dome" id="dome"></div>
       <div class="mbody"><div class="mlabel">もじガチャ</div><div class="handle" aria-hidden="true"></div><div class="slot"></div></div>
     </div>
     <div class="gacha-side">
-    <div class="pick" id="pickBox" hidden><p class="pick-t">どの ガチャに する？</p><div class="zgroups" id="pickGroups"></div></div>
+    <div class="pick" id="pickBox" hidden><button class="pill" id="pickChange">ガチャを かえる</button></div>
     <button class="spin-btn" id="spinBtn">まわす
       <span class="cost"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="#FFC23A" stroke="#23284F" stroke-width="3"/><circle cx="20" cy="20" r="11" fill="none" stroke="#D98E00" stroke-width="2.5"/><path d="M20 12.5l2.3 4.7 5.2.7-3.8 3.6.9 5.1-4.6-2.4-4.6 2.4.9-5.1-3.8-3.6 5.2-.7z" fill="#fff"/></svg><b id="costNum">10</b></span>
     </button>
@@ -542,6 +565,8 @@ details.more .note{margin-top:6px}
         <p id="weakLine" style="margin-top:10px"></p>
         <p id="dayLine"></p>
         <p id="zukanLine"></p>
+        <p id="imgLine" class="note"></p>
+        <div class="row" style="justify-content:flex-start"><button class="sbtn" id="persistBtn">画像を消されにくくする</button></div>
         <p class="note">「きいてえらぶ」は1回目で正解したかどうかを記録します。間違えた文字ほど出題されやすくなります。</p>
       </section>
       <section data-ptab="gacha">
@@ -609,17 +634,17 @@ details.more .note{margin-top:6px}
         <div class="row" style="justify-content:flex-start;margin-top:8px">
           <button class="sbtn" id="voiceTest">音声をテスト</button>
           <button class="sbtn" id="addCoin">コインを10枚ふやす</button>
-          <button class="sbtn warn" id="resetBtn">記録をすべて消す</button>
+          <button class="sbtn warn" id="resetBtn">この子の記録を消す</button>
         </div>
         <p id="voiceInfo" class="note" style="margin-top:10px"></p>
       </section>
       <section data-ptab="other">
         <h3>データの バックアップ</h3>
-        <p class="note">子ども全員の記録（コイン・ずかん・学習の記録・設定）をファイルに保存して、別のタブレットやブラウザに移せます。追加した画像は入らないので、移した先でzipを読み込み直してください。</p>
+        <p class="note">子ども全員の記録（コイン・ずかん・学習の記録・設定）をファイルに保存して、別のタブレットやブラウザに移せます。さくひんの写真も入ります。zipで追加した画像は入らないので、移した先でzipを読み込み直してください。</p>
         <div class="row" style="justify-content:flex-start"><button class="sbtn" id="bkSave">バックアップを保存</button><label class="sbtn upl" style="padding:8px 16px;border-style:solid">バックアップから戻す<input type="file" id="bkLoad" accept=".json,application/json"></label></div>
         <p class="note" id="bkMsg" hidden></p>
         <textarea id="bkText" hidden readonly style="width:100%;height:90px;font:12px monospace;margin-top:6px"></textarea>
-        <p class="note">バージョン 1.6（2026-10-18・アプリ版）</p>
+        <p class="note">バージョン 1.8.0（2026-10-19・アプリ版）</p>
         <p class="note">音声：VOICEVOX:ずんだもん／英語の声は Kokoro（Apache License 2.0）で作成</p>
         <p class="note">書き順データ：ひらがな・カタカナは KanjiVG（© Ulrich Apel, CC BY-SA 3.0, kanjivg.tagaini.net）を使用しています。</p>
       </section>
@@ -647,6 +672,9 @@ details.more .note{margin-top:6px}
 
 <script>
 const $=s=>document.querySelector(s);
+// 不具合の調査用：最近のエラーを5件まで残す（端末の外には送らない）
+function logErr(m){try{const a=JSON.parse(localStorage.getItem('mojigacha.errs')||'[]');a.push(new Date().toLocaleString('ja-JP')+' '+String(m).slice(0,160));localStorage.setItem('mojigacha.errs',JSON.stringify(a.slice(-5)))}catch(_){}}
+window.addEventListener('error',e=>logErr((e.message||'error')+(e.lineno?' @'+e.lineno:'')));window.addEventListener('unhandledrejection',e=>logErr('promise: '+(e.reason&&e.reason.message||e.reason)));
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const HIRA=[...'あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをん'];
 const KATA=[...'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン'];
@@ -732,11 +760,11 @@ function updateCoins(bump){$('#coinNum').textContent=S.coins;if(bump){const p=$(
 function addCoins(n){S.coins+=n;save();updateCoins(true)}
 
 /* ---------- 画面きりかえ ---------- */
-const VIEWS=['who','home','quiz','trace','done','gacha','zukan','parent'];
+const VIEWS=['who','home','quiz','trace','done','pick','gacha','zukan','parent'];
 let cur='home';
-function show(v){hush();VIEWS.forEach(x=>$('#v-'+x).hidden=x!==v);$('#homeBtn').hidden=v==='home';cur=v;
-  if(v==='home')renderHome();if(v==='who')renderWho();$('#whoBtn').hidden=P.list.length<2||v==='who';$('#coinPill').hidden=v==='who';document.querySelector('.bar h1').style.visibility=v==='who'?'hidden':'';$('#homeBtn').hidden=v==='home'||v==='who';if(v==='gacha')renderGacha();if(v==='zukan')renderZukan();if(v==='parent')renderParent()}
-document.addEventListener('click',e=>{const n=e.target.closest('[data-nav]');if(n)show(n.dataset.nav)});
+function show(v){hush();if(v!=='trace'&&typeof stopDemo==='function')stopDemo();VIEWS.forEach(x=>$('#v-'+x).hidden=x!==v);$('#homeBtn').hidden=v==='home';cur=v;
+  if(v==='home')renderHome();if(v==='pick')renderBanners();if(v==='who')renderWho();$('#whoBtn').hidden=P.list.length<2||v==='who';$('#coinPill').hidden=v==='who';document.querySelector('.bar h1').style.visibility=v==='who'?'hidden':'';$('#homeBtn').hidden=v==='home'||v==='who';if(v==='gacha')renderGacha();if(v==='zukan')renderZukan();if(v==='parent')renderParent()}
+document.addEventListener('click',e=>{const n=e.target.closest('[data-nav]');if(!n)return;let v=n.dataset.nav;if(v==='gacha'&&n.dataset.direct===undefined&&gachaGroups().length>1)v='pick';show(v)});
 $('#homeBtn').onclick=()=>show('home');
 document.addEventListener('contextmenu',e=>{if(!e.target.closest('.panel'))e.preventDefault()});
 
@@ -758,7 +786,7 @@ function makeOptions(set,target){const n=S.settings.grade==='easy'?3:4;const opt
 function record(set,ch,ok){const st=S.stats[set][ch]||(S.stats[set][ch]={c:0,w:0});ok?st.c++:st.w++;save()}
 function dots(el,total,n){el.innerHTML=Array.from({length:total},(_,i)=>`<i class="${i<n?'on':i===n?'now':''}"></i>`).join('')}
 function celebrate(n,cb){const o=$('#celebrate');$('#celeN').textContent='+'+n;o.hidden=false;o.classList.remove('play');void o.offsetWidth;o.classList.add('play');chime('ok');hush();say('せいかい！','ja-JP',1);
-  setTimeout(()=>{addCoins(n);chime('coin')},550);setTimeout(()=>{o.hidden=true;cb&&cb()},1450)}
+  S.coins+=n;save();setTimeout(()=>{updateCoins(true);chime('coin')},550);setTimeout(()=>{o.hidden=true;cb&&cb()},1450)}
 function finishRound(earned,kind,set){$('#doneN').textContent='+'+earned;$('#doneMsg').textContent=`コインを ${earned}まい もらったよ！`;show('done');chime('fan');say('よく できました！');
   $('#doneAgain').onclick=()=>kind==='quiz'?startQuiz(set):startTrace(set,kind)}
 
@@ -778,7 +806,7 @@ function askQ(){if(cur!=='quiz')return;hush();const c=Q.target;if(Q.set!=='abc'&
 $('#qSpk').onclick=askQ;
 $('#qChoices').addEventListener('click',e=>{const b=e.target.closest('.choice');if(!b||b.disabled||Q.locked)return;const ch=b.dataset.ch;
   if(ch===Q.target){Q.locked=true;if(Q.tries===0)record(Q.set,ch,true);const g=Q.tries===0?2:1;Q.earned+=g;S.day.answered++;save();b.classList.add('ok');
-    celebrate(g,()=>{Q.n++;nextQ()})}
+    const q=Q;celebrate(g,()=>{if(Q!==q||cur!=='quiz')return;Q.n++;nextQ()})}
   else{if(Q.tries===0)record(Q.set,Q.target,false);Q.tries++;b.classList.add('ng');b.disabled=true;chime('bad');hush();say('ちがうよ。','ja-JP',1);
     if(Q.tries>=2){const ok=[...document.querySelectorAll('#qChoices .choice')].find(x=>x.dataset.ch===Q.target);if(ok)ok.classList.add('hintme');say('これだよ。 タッチしてみてね')}
     else setTimeout(()=>{if(cur==='quiz'&&!Q.locked)askQ()},1100)}});
@@ -838,7 +866,7 @@ abc:[['Apple','🍎'],['Ball','⚽'],['Cat','🐱'],['Dog','🐶'],['Egg','🥚'
 function wordsFor(set){return WORDS[set].filter(w=>SETS[set].chars.includes(w[0][0]))}
 
 /* ---------- なぞりがき・えをみてかく ---------- */
-let T=null,csize=0,gctx,ictx,drawing=false,curStroke=[],demoRAF=0;
+let penId=null;let T=null,csize=0,gctx,ictx,drawing=false,curStroke=[],demoRAF=0;
 const gCan=$('#guide'),iCan=$('#ink');
 const TOL={easy:.16,normal:.12,hard:.09};
 async function startTrace(set,mode='trace'){rollDay();if(timeUp())return restNow();stopDemo();T={set,mode,n:0,total:3,earned:0,last:null};show('trace');
@@ -848,7 +876,7 @@ function sizeCanvas(){const box=$('#traceBox');const s=Math.max(220,Math.floor(M
   $('#traceFrame').style.width=$('#traceFrame').style.height=s+'px';
   [gCan,iCan].forEach(c=>{c.style.width=c.style.height=s+'px';c.width=c.height=Math.round(s*dpr)});
   gctx=gCan.getContext('2d');ictx=iCan.getContext('2d');gctx.setTransform(dpr,0,0,dpr,0,0);ictx.setTransform(dpr,0,0,dpr,0,0);
-  if(T&&T.target){const k=s/(T.fitSize||s);T.tp=fitStrokes(T.target,s);T.done=T.done.map(st=>st.map(p=>({x:p.x*k,y:p.y*k})));T.fitSize=s}}
+  if(T&&T.target&&T.tp){const k=s/(T.fitSize||s);const sc=p=>({x:p.x*k,y:p.y*k});T.tp=T.tp.map(st=>st.map(sc));if(T.off)T.off=sc(T.off);T.offs=(T.offs||[]).map(sc);T.done=T.done.map(st=>st.map(p=>({x:p.x*k,y:p.y*k})));T.fitSize=s}}
 function poly(ctx,a,upto){if(!a||!a.length)return;ctx.beginPath();ctx.moveTo(a[0].x,a[0].y);const m=upto==null?a.length:Math.max(1,Math.floor(upto));for(let i=1;i<m;i++)ctx.lineTo(a[i].x,a[i].y);if(a.length===1)ctx.lineTo(a[0].x+.01,a[0].y);ctx.stroke()}
 function drawGuide(prog){const s=csize,g=gctx,set=SETS[T.set];g.clearRect(0,0,s,s);
   g.save();g.strokeStyle='#F2B3A8';g.lineWidth=2;g.setLineDash([8,8]);g.beginPath();g.moveTo(s/2,0);g.lineTo(s/2,s);g.moveTo(0,s/2);g.lineTo(s,s/2);g.stroke();g.restore();
@@ -879,10 +907,10 @@ function askT(){if(cur!=='trace'||!T||!T.target||(T.mode==='pic'&&!T.word))retur
   const b=$('#tSpk');b.classList.remove('talk');void b.offsetWidth;b.classList.add('talk')}
 $('#tSpk').onclick=askT;
 function pt(e){const r=iCan.getBoundingClientRect();return{x:(e.clientX-r.left)*csize/r.width,y:(e.clientY-r.top)*csize/r.height}}
-iCan.addEventListener('pointerdown',e=>{if(!T||T.busy)return;e.preventDefault();try{iCan.setPointerCapture(e.pointerId)}catch(_){};stopDemo();drawGuide();drawing=true;curStroke=[pt(e)];
+iCan.addEventListener('pointerdown',e=>{if(!T||T.busy||(drawing&&e.pointerId!==penId))return;e.preventDefault();penId=e.pointerId;try{iCan.setPointerCapture(e.pointerId)}catch(_){};stopDemo();drawGuide();drawing=true;curStroke=[pt(e)];
   ictx.strokeStyle=ictx.fillStyle=SETS[T.set].c;ictx.lineWidth=csize*.04;ictx.beginPath();ictx.arc(curStroke[0].x,curStroke[0].y,ictx.lineWidth/2,0,Math.PI*2);ictx.fill();$('#tHint').textContent=''});
-iCan.addEventListener('pointermove',e=>{if(!drawing)return;const p=pt(e);const l=curStroke[curStroke.length-1];if(dist(l,p)<1.5)return;ictx.beginPath();ictx.moveTo(l.x,l.y);ictx.lineTo(p.x,p.y);ictx.stroke();curStroke.push(p)});
-['pointerup','pointercancel'].forEach(ev=>iCan.addEventListener(ev,()=>{if(!drawing)return;drawing=false;strokeDone(curStroke)}));
+iCan.addEventListener('pointermove',e=>{if(!drawing||e.pointerId!==penId)return;const p=pt(e);const l=curStroke[curStroke.length-1];if(dist(l,p)<1.5)return;ictx.beginPath();ictx.moveTo(l.x,l.y);ictx.lineTo(p.x,p.y);ictx.stroke();curStroke.push(p)});
+['pointerup','pointercancel'].forEach(ev=>iCan.addEventListener(ev,e=>{if(!drawing||e.pointerId!==penId)return;drawing=false;penId=null;strokeDone(curStroke)}));
 const cen=a=>{let x=0,y=0;a.forEach(p=>{x+=p.x;y+=p.y});return{x:x/a.length,y:y/a.length}};
 function shifted(i){const st=T.tp[i];if(!st||T.mode!=='pic'||!T.off)return st;return st.map(p=>({x:p.x+T.off.x,y:p.y+T.off.y}))}
 function judge(user,target){const s=csize,pic=T.mode==='pic',tol=s*(TOL[S.settings.level]||TOL.normal)*(pic?1.5:1)*(1+.2*Math.min(T.missCur||0,4));const lenT=plen(target),lenU=plen(user);
@@ -906,7 +934,7 @@ function strokeDone(user){let res=judge(user,shifted(T.cur));
     if(best>=0){const t=T.tp[best];T.tp.splice(best,1);T.tp.splice(T.cur,0,t);res='ok'}}
   if(res==='ok'){if(T.mode==='pic'){const cu=cen(user),cg=cen(T.tp[T.cur]);T.offs.push({x:cu.x-cg.x,y:cu.y-cg.y});T.off={x:T.offs.reduce((a,o)=>a+o.x,0)/T.offs.length,y:T.offs.reduce((a,o)=>a+o.y,0)/T.offs.length}}T.done.push(user);T.cur++;T.missCur=0;chime('coin');drawInk();
     if(T.cur>=T.tp.length){T.busy=true;const g=T.mode==='pic'?3:2;record(T.set,T.target,T.miss===0);T.earned+=g;S.day.answered++;save();
-      setTimeout(()=>celebrate(g,()=>{T.busy=false;T.n++;nextT()}),250)}
+      const t=T;setTimeout(()=>{if(T!==t||cur!=='trace'){t.busy=false;S.coins+=g;save();updateCoins();return}celebrate(g,()=>{t.busy=false;if(T!==t||cur!=='trace')return;T.n++;nextT()})},250)}
     else{drawGuide();if(T.mode==='trace')setTimeout(()=>{if(!drawing)demo()},250)}}
   else{T.miss++;T.missCur++;chime('bad');
     const msg=(T.mode==='pic'&&!T.revealed&&res==='start')?'かく ばしょが ちがうよ':HINTS[res];$('#tHint').textContent=msg;hush();say(msg,'ja-JP',1);setTimeout(()=>{drawInk();if(!drawing&&(T.mode==='trace'||T.revealed))demo();else drawGuide()},450)}}
@@ -956,11 +984,10 @@ function cardHTML(m,o={}){return`<div class="mcard r${m.rarity}">${o.isNew?'<spa
 
 /* ---------- ガチャ ---------- */
 const CAP={1:'#7CC8FF',2:'#FF7A7A',3:'#FFC23A'};
-function renderPick(){const p=pool();const groups=[...new Set(p.map(groupOf))];if(S.pick&&!groups.includes(S.pick))S.pick='';{const l=document.querySelector('.mlabel');if(l)l.textContent=S.pick?`${S.pick} ガチャ`:'もじガチャ'}
-  $('#pickBox').hidden=groups.length<2;if(groups.length<2)return;
-  const cnt=g=>{const q=p.filter(m=>groupOf(m)===g);return `${q.filter(m=>S.owned[m.id]).length}/${q.length}`};
-  $('#pickGroups').innerHTML=`<button data-pk="" aria-pressed="${!S.pick}">みんな<small>${p.filter(m=>S.owned[m.id]).length}/${p.length}</small></button>`+groups.map(g=>`<button data-pk="${esc(g)}" aria-pressed="${S.pick===g}">${esc(g)}<small>${cnt(g)}</small></button>`).join('')}
-$('#pickGroups').addEventListener('click',e=>{const b=e.target.closest('[data-pk]');if(!b||spinning)return;S.pick=b.dataset.pk;save();renderPick();chime('coin')});
+function gachaGroups(){return [...new Set(pool().map(groupOf))]}
+function renderPick(){const p=pool();const groups=gachaGroups();if(S.pick&&!groups.includes(S.pick))S.pick='';{const l=document.querySelector('.mlabel');if(l)l.textContent=S.pick?`${S.pick} ガチャ`:'もじガチャ'}
+  $('#pickBox').hidden=groups.length<2}
+$('#pickChange').onclick=()=>{if(!spinning)show('pick')};
 function renderGacha(){rollDay();renderPick();$('#costNum').textContent=S.settings.cost;
   const cols=['#FF7A7A','#7CC8FF','#FFC23A','#9BE3B0','#CDB8FF','#FFB27A'];const pos=[[12,52],[38,58],[62,52],[24,30],[52,30],[70,72],[8,74],[36,78],[58,6],[30,6]];
   $('#dome').innerHTML=pos.map(([x,y],i)=>`<i style="left:${x}%;top:${y}%;--cc:${cols[i%cols.length]};transform:rotate(${i*37}deg)"></i>`).join('');
@@ -973,7 +1000,7 @@ function gachaPool(){const p=pool();const g=S.pick;if(!g)return p;const q=p.filt
 function drawMon(){const p=gachaPool();const W={1:70,2:25,3:5};const rs=[1,2,3].filter(r=>p.some(m=>m.rarity===r));let x=Math.random()*rs.reduce((a,r)=>a+W[r],0),R=rs[rs.length-1];
   for(const r of rs){x-=W[r];if(x<=0){R=r;break}}const c=p.filter(m=>m.rarity===R);return c[Math.floor(Math.random()*c.length)]}
 let G=null,spinning=false;
-$('#spinBtn').onclick=()=>{if(spinning)return;rollDay();if(timeUp())return restNow();const cost=S.settings.cost;
+$('#spinBtn').onclick=()=>{if(spinning)return;if(!CUSTOM_READY&&expectedImgs()){$('#gachaMsg').textContent='じゅんび ちゅう… すこし まってね';return}rollDay();if(timeUp())return restNow();const cost=S.settings.cost;
   if(S.settings.daily>0&&S.day.gachas>=S.settings.daily){gachaStatus();hush();say('きょうの ガチャは おしまい。また あした！');return}
   if(S.coins<cost){gachaStatus();hush();say('コインが たりないよ。べんきょうして あつめよう！');return}
   const m=drawMon();if(!m){$('#gachaMsg').textContent='ガチャの なかみが ないよ。おうちの ひとに きいてね';hush();say('ガチャの なかみが ないよ。 おうちの ひとに きいてね');return}spinning=true;S.coins-=cost;S.day.gachas++;const isNew=!S.owned[m.id];S.owned[m.id]=(S.owned[m.id]||0)+1;S.got=S.got||{};if(isNew)S.got[m.id]=Date.now();if(!isNew)S.coins+=2;save();updateCoins(true);
@@ -1010,7 +1037,7 @@ function renderZukan(){renderZGroups();const p=pool();const own=p.filter(m=>S.ow
   const list=zList();const pages=Math.max(1,Math.ceil(list.length/ZPAGE));if(zPage>=pages)zPage=pages-1;const shown=list.slice(zPage*ZPAGE,zPage*ZPAGE+ZPAGE);
   document.querySelectorAll('[data-zpager]').forEach(pg=>{pg.hidden=pages<=1;pg.querySelector('.pginfo').textContent=`${zPage+1} / ${pages}`;pg.querySelector('[data-zp=prev]').disabled=zPage===0;pg.querySelector('[data-zp=next]').disabled=zPage>=pages-1});
   if(!shown.length){$('#zGrid').innerHTML='<p class="zempty">まだ なかまが いないよ。<br>べんきょうして ガチャを まわそう！</p>';return}
-  $('#zGrid').innerHTML=shown.map(m=>S.owned[m.id]?`<button data-id="${m.id}" aria-label="${esc(m.name)}">${cardHTML(m,{count:S.owned[m.id]})}</button>`:`<div class="mcard unknown">${m.no?`<span class="mno">No.${m.no}</span>`:''}<div class="art">？</div><div class="mname">？？？</div><div class="stars">${'★'.repeat(m.rarity)}${'☆'.repeat(3-m.rarity)}</div></div>`).join('')}
+  $('#zGrid').innerHTML=shown.map(m=>S.owned[m.id]?`<button data-id="${esc(m.id)}" aria-label="${esc(m.name)}">${cardHTML(m,{count:S.owned[m.id]})}</button>`:`<div class="mcard unknown">${m.no?`<span class="mno">No.${m.no}</span>`:''}<div class="art">？</div><div class="mname">？？？</div><div class="stars">${'★'.repeat(m.rarity)}${'☆'.repeat(3-m.rarity)}</div></div>`).join('')}
 $('#zTabs').addEventListener('click',e=>{const b=e.target.closest('[data-z]');if(!b)return;zMode=b.dataset.z;zPage=0;renderZukan();$('#v-zukan').scrollTop=0});
 document.querySelectorAll('[data-zpager]').forEach(pg=>pg.addEventListener('click',e=>{const b=e.target.closest('[data-zp]');if(!b||b.disabled)return;zPage+=b.dataset.zp==='next'?1:-1;renderZukan();$('#v-zukan').scrollTop=0}));
 $('#zGrid').addEventListener('click',e=>{const b=e.target.closest('[data-id]');if(!b)return;const m=allItems().find(x=>x.id===b.dataset.id);if(!m)return;
@@ -1021,8 +1048,18 @@ $('#bigClose').onclick=()=>{$('#bigView').hidden=true;hush()};$('#bigView').addE
 let db=null;
 function openDB(){return new Promise(res=>{try{const r=indexedDB.open('mojigacha',1);r.onupgradeneeded=()=>r.result.createObjectStore('mons',{keyPath:'id'});r.onsuccess=()=>res(r.result);r.onerror=()=>res(null);r.onblocked=()=>res(null)}catch(e){res(null)}})}
 function putMon(m){return new Promise(res=>{if(!db)return res(false);try{const tx=db.transaction('mons','readwrite');tx.objectStore('mons').put({id:m.id,by:m.by||'',date:m.date||'',pack:m.pack||'',name:m.name,form:m.form||'',no:m.no||'',sort:m.sort||0,rarity:m.rarity,blob:m.blob,added:m.added});tx.oncomplete=()=>res(true);tx.onerror=()=>res(false)}catch(e){res(false)}})}
+function delMany(ids){return new Promise(res=>{if(!db||!ids.length)return res(false);try{const tx=db.transaction('mons','readwrite');const st=tx.objectStore('mons');ids.forEach(id=>st.delete(id));tx.oncomplete=()=>res(true);tx.onerror=tx.onabort=()=>res(false)}catch(e){res(false)}})}
 function delMon(id){try{db&&db.transaction('mons','readwrite').objectStore('mons').delete(id)}catch(e){}}
-async function loadCustom(){db=await openDB();if(!db)return;try{const req=db.transaction('mons').objectStore('mons').getAll();req.onsuccess=()=>{CUSTOM=(req.result||[]).sort(byOrder).map(r=>({...r,custom:true,url:URL.createObjectURL(r.blob)}));if(cur==='zukan')renderZukan();if(cur==='parent')renderParent()}}catch(e){}}
+// 画像の読み込み：1枚ずつ読む（大量でもメモリ不足になりにくい）・失敗したら少し待って読み直す
+let CUSTOM_READY=false,LOAD_ERR='';
+function expectedImgs(){try{return +localStorage.getItem('mojigacha.imgcount')||0}catch(e){return 0}}
+function noteImgs(){try{localStorage.setItem('mojigacha.imgcount',String(CUSTOM.length))}catch(e){}}
+function readAll(){return new Promise((res,rej)=>{try{const out=[];const req=db.transaction('mons').objectStore('mons').openCursor();req.onsuccess=()=>{const c=req.result;if(c){out.push(c.value);c.continue()}else res(out)};req.onerror=()=>rej(req.error)}catch(e){rej(e)}})}
+async function loadCustom(){for(let t=0;t<4;t++){try{db=db||await openDB();if(!db)throw new Error('データベースを開けません');const rows=await readAll();
+      CUSTOM.forEach(m=>{try{URL.revokeObjectURL(m.url)}catch(_){}});CUSTOM=rows.filter(r=>r&&r.blob).sort(byOrder).map(r=>({...r,custom:true,url:URL.createObjectURL(r.blob)}));LOAD_ERR='';break}
+    catch(e){LOAD_ERR=String(e&&e.message||e);db=null;await new Promise(r=>setTimeout(r,600*(t+1)))}}
+  CUSTOM_READY=true;if(CUSTOM.length||!expectedImgs())noteImgs();
+  if(cur==='zukan')renderZukan();if(cur==='parent')renderParent();if(cur==='pick')renderBanners();if(cur==='gacha')renderGacha()}
 
 /* ---------- おうちの方 ---------- */
 const gate=$('#gateBtn');let gt=null;
@@ -1039,12 +1076,19 @@ function renderStats(){const st=S.stats[statSet];const cell=ch=>{const s=st[ch];
   $('#weakLine').textContent=weak.length?`にがてそうな文字：${weak.join('　')}`:'まだ苦手な文字はありません。';
   document.querySelectorAll('#statTabs button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.set===statSet))}
 $('#statTabs').onclick=e=>{const b=e.target.closest('button');if(b){statSet=b.dataset.set;renderStats()}};
-function renderParent(){rollDay();renderGNames();{const it=allItems(),own=ownedUnique().length,inPool=pool().filter(m=>S.owned[m.id]).length,lost=Object.keys(S.owned).length-own;$('#zukanLine').textContent=`ずかん：${own}ひき ゲット（いまのガチャの中は ${inPool}ひき）`+(lost>0?`／画像が消えたため表示できない記録 ${lost}件（同じグループ名で読み込み直すと戻ります）`:'')}renderProfiles();applyPTab();renderMore();renderWorks();renderStats();$('#dayLine').textContent=`きょう：${S.day.answered}問　ガチャ${S.day.gachas}回　いまのコイン${S.coins}枚`;
+async function storageInfo(){const el=$('#imgLine');if(!el)return;let t=`追加した画像：${CUSTOM.length}まい`;const ex=expectedImgs();
+  if(CUSTOM_READY&&!CUSTOM.length&&ex)t+=`　⚠ 前は ${ex}まい ありましたが、このタブレットの保存場所に見つかりません`;
+  if(LOAD_ERR)t+=`　（読み込みエラー：${LOAD_ERR}）`;
+  try{if(navigator.storage){const p=navigator.storage.persisted?await navigator.storage.persisted():null;const e=navigator.storage.estimate?await navigator.storage.estimate():null;
+    if(e)t+=`／使用量 約${Math.round((e.usage||0)/1048576)}MB`;if(p!==null)t+=`／消されにくい保存：${p?'オン':'オフ'}`}}catch(_){}
+  try{const a=JSON.parse(localStorage.getItem('mojigacha.errs')||'[]');if(a.length)t+=`／最近のエラー：${a[a.length-1]}`}catch(_){}
+  el.textContent=t}
+function renderParent(){rollDay();storageInfo();renderGNames();{const it=allItems(),own=ownedUnique().length,inPool=pool().filter(m=>S.owned[m.id]).length,lost=Object.keys(S.owned).length-own;$('#zukanLine').textContent=`ずかん：${own}ひき ゲット（いまのガチャの中は ${inPool}ひき）`+(lost>0?`／画像が消えたため表示できない記録 ${lost}件（同じグループ名で読み込み直すと戻ります）`:'')}renderProfiles();applyPTab();renderMore();renderWorks();renderStats();$('#dayLine').textContent=`きょう：${S.day.answered}問　ガチャ${S.day.gachas}回　いまのコイン${S.coins}枚`;
   $('#setCost').value=String(S.settings.cost);$('#setDaily').value=String(S.settings.daily);$('#setMix').checked=!!S.settings.mix;$('#setShow').checked=!!S.settings.show;$('#setLevel').value=S.settings.level||'normal';$('#setVoice').value=S.settings.voice||'clip';$('#setEx').checked=S.settings.example!==false;
   $('#dbWarn').hidden=!!db;
   const q=($('#cSearch').value||'').trim();const hits=CUSTOM.filter(m=>!q||(m.name+(m.form||'')+(m.no||'')+packOf(m)).includes(q));const pages=Math.max(1,Math.ceil(hits.length/PAGE));if(cPage>=pages)cPage=pages-1;const shown=hits.slice(cPage*PAGE,cPage*PAGE+PAGE);
   $('#cCount').textContent=CUSTOM.length?`追加した画像：${CUSTOM.length}まい`+(q?`（みつかった ${hits.length}まい）`:''):'';$('#cDelAll').hidden=!CUSTOM.length;
-  renderPager(pages,hits.length);$('#cList').innerHTML=shown.length?shown.map(m=>`<div class="citem" data-id="${m.id}"><img src="${m.url}" alt="" loading="lazy"><span class="cno">${m.no?`No.${m.no}`:''}${m.form?` ${esc(m.form)}`:''}</span><input type="text" id="nm-${m.id}" value="${esc(m.name)}" aria-label="名前"><select id="rr-${m.id}" aria-label="レア度">${[1,2,3].map(r=>`<option value="${r}"${m.rarity===r?' selected':''}>${'★'.repeat(r)}</option>`).join('')}</select><button class="sbtn warn" data-del="${m.id}">削除</button></div>`).join(''):(CUSTOM.length?'<p class="note">みつかりませんでした。</p>':'<p class="note">まだ画像はありません。</p>');
+  renderPager(pages,hits.length);$('#cList').innerHTML=shown.length?shown.map(m=>`<div class="citem" data-id="${esc(m.id)}"><img src="${m.url}" alt="" loading="lazy"><span class="cno">${m.no?`No.${m.no}`:''}${m.form?` ${esc(m.form)}`:''}</span><input type="text" id="nm-${esc(m.id)}" value="${esc(m.name)}" aria-label="名前"><select id="rr-${esc(m.id)}" aria-label="レア度">${[1,2,3].map(r=>`<option value="${r}"${m.rarity===r?' selected':''}>${'★'.repeat(r)}</option>`).join('')}</select><button class="sbtn warn" data-del="${esc(m.id)}">削除</button></div>`).join(''):(CUSTOM.length?'<p class="note">みつかりませんでした。</p>':'<p class="note">まだ画像はありません。</p>');
   const vi=[];if(useClips())vi.push(`再生方式：${voiceMode==='el'?'音声タグ':voiceMode==='webaudio'?'WebAudio':'まだ未再生'}${voiceErr?'（'+voiceErr+'）':''}。`);vi.push('ずんだもんの声を使っています（ゲームで使う決まった言葉はすべて入っています）。ガチャに追加した画像の名前だけは、タブレットの読み上げ機能で読みます。');if(!canSpeak)vi.push('このブラウザはタブレットの読み上げに対応していません。');else{vi.push(jaV?`日本語の声：${jaV.name}`:'日本語の声が見つかりません（端末の設定で「Google 音声サービス」の日本語データを入れてください）。');vi.push(enV?`英語の声：${enV.name}`:'英語の声が見つかりません。')}
   $('#voiceInfo').textContent=vi.join(' ')}
 $('#setCost').onchange=e=>{S.settings.cost=+e.target.value;save()};
@@ -1057,8 +1101,8 @@ $('#setShow').onchange=e=>{S.settings.show=e.target.checked;save()};
 $('#voiceTest').onclick=()=>{pickVoices();hush();sayChar('あ','hira');sayChar('ア','kata');sayChar('A','abc');renderParent()};
 $('#addCoin').onclick=()=>{addCoins(10);renderParent()};
 function armed(btn,label,fn){if(btn.classList.contains('armed')){fn();return}const t=btn.textContent;btn.classList.add('armed');btn.textContent=label;setTimeout(()=>{if(btn.isConnected){btn.classList.remove('armed');btn.textContent=t}},3000)}
-$('#resetBtn').onclick=e=>armed(e.currentTarget,'もう一度押すと消えます',()=>{S=defaults();rollDay();save();updateCoins();renderParent()});
-async function addImages(files){files=files.filter(f=>f&&f.type&&f.type.startsWith('image/'));if(!files.length)return;let i=0;for(const f of files){const m={id:'c'+Date.now().toString(36)+(i++),pack:targetPack(),name:(f.name||'なまえ').replace(/\.[^.]+$/,'').replace(/^image$/,'なまえ'),rarity:1,blob:f,added:Date.now()+i,custom:true,url:URL.createObjectURL(f)};CUSTOM.push(m);await putMon(m)}
+$('#resetBtn').onclick=e=>armed(e.currentTarget,'もう一度押すと コイン・ずかん・学習記録が消えます',()=>{const keep=S.settings;S=defaults();S.settings=keep;rollDay();save();updateCoins();renderParent()});
+async function addImages(files){files=files.filter(f=>f&&f.type&&f.type.startsWith('image/'));if(!files.length)return;if(!allPacks().includes(targetPack()))setTimeout(()=>ensurePackForAll(targetPack()),0);let i=0;for(const f of files){const m={id:'c'+Date.now().toString(36)+(i++),pack:targetPack(),name:(f.name||'なまえ').replace(/\.[^.]+$/,'').replace(/^image$/,'なまえ'),rarity:1,blob:f,added:Date.now()+i,custom:true,url:URL.createObjectURL(f)};CUSTOM.push(m);await putMon(m)}noteImgs();
   renderParent();const msg=$('#upMsg');msg.textContent=`${files.length}まい 追加しました。名前とレア度を入れてください。`;msg.hidden=false}
 $('#fileIn').onchange=async e=>{await addImages([...e.target.files]);e.target.value=''};
 document.addEventListener('paste',e=>{if(cur!=='parent')return;const fs=[...(e.clipboardData?.items||[])].filter(it=>it.kind==='file').map(it=>it.getAsFile());if(fs.length){e.preventDefault();addImages(fs)}});
@@ -1089,7 +1133,8 @@ async function zipEntryBlob(file,en,type){const h=new DataView(await file.slice(
   return null}
 function putMany(list){return new Promise(res=>{if(!db)return res(false);try{const tx=db.transaction('mons','readwrite');const st=tx.objectStore('mons');
   list.forEach(m=>st.put({id:m.id,by:m.by||'',date:m.date||'',pack:m.pack||'',name:m.name,form:m.form,no:m.no,sort:m.sort,rarity:m.rarity,blob:m.blob,added:m.added}));tx.oncomplete=()=>res(true);tx.onerror=tx.onabort=()=>res(false)}catch(e){res(false)}})}
-$('#zipIn').onchange=async e=>{const file=e.target.files[0];e.target.value='';if(!file)return;const msg=$('#zMsg'),bar=$('#zBar'),fill=$('#zFill');msg.hidden=false;bar.hidden=false;fill.style.width='0';
+let importing=false;
+$('#zipIn').onchange=async e=>{const file=e.target.files[0];e.target.value='';if(!file)return;if(importing){$('#zMsg').hidden=false;$('#zMsg').textContent='いま 読み込み中です。終わるまで お待ちください。';return}importing=true;keepAwake();const newPack=!allPacks().includes(targetPack(file.name));const msg=$('#zMsg'),bar=$('#zBar'),fill=$('#zFill');msg.hidden=false;bar.hidden=false;fill.style.width='0';
   const from=+$('#zFrom').value||1,to=+$('#zTo').value||9999,baseOnly=$('#zBase').checked;
   try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{})}catch(_){}
   try{msg.textContent='zipファイルを よみこみ中…';
@@ -1102,18 +1147,19 @@ $('#zipIn').onchange=async e=>{const file=e.target.files[0];e.target.value='';if
     for(const en of ents){const x=en.name.split('.').pop().toLowerCase();const blob=await zipEntryBlob(file,en,TYPES[x]);
       if(!blob){skipped++;continue}const p=parseName(en.name);
       const pk=targetPack(file.name);const m={id:p.num?`${pk==='はじめの画像'?'':pk+':'}z${p.no}-${p.sub}`:'c'+now.toString(36)+done,pack:pk,name:p.name,form:p.form,no:p.no,sort:p.num?p.num*100+p.sub:0,rarity:autoRarity(p),blob,added:now+done,custom:true};
-      batch.push(m);done++;
+      {const ex=p.num&&CUSTOM.find(x=>x.id!==m.id&&packOf(x)===pk&&sameKey(x)===sameKey(m));if(ex)m.id=ex.id}batch.push(m);done++;
       if(batch.length>=40){if(!await putMany(batch))throw new Error('保存できませんでした（タブレットの空き容量を確認してください）');mergeCustom(batch);batch=[];fill.style.width=(done/ents.length*100)+'%';msg.textContent=`${done} / ${ents.length} まい 追加中…`}}
     if(batch.length){if(!await putMany(batch))throw new Error('保存できませんでした（タブレットの空き容量を確認してください）');mergeCustom(batch)}
-    fill.style.width='100%';msg.textContent=`${done}まい 追加しました。`+(skipped?`（${skipped}まいは読めませんでした）`:'');renderParent()}
-  catch(err){msg.textContent='エラー：'+(err&&err.message||err);bar.hidden=true}};
+    if(newPack&&done)ensurePackForAll(targetPack(file.name));fill.style.width='100%';msg.textContent=`${done}まい 追加しました。`+(newPack&&done?'子ども全員のガチャに入れました（ガチャの設定で外せます）。':'')+(skipped?`（${skipped}まいは読めませんでした${'DecompressionStream' in window?'':'。このブラウザは圧縮されたzipに対応していません。Chromeか、新しいiPhone/iPadで試してください'}）`:'');renderParent()}
+  catch(err){msg.textContent='エラー：'+(err&&err.message||err);bar.hidden=true}
+  finally{importing=false}};
 function sameKey(m){return m.no?`${m.no}-${m.id.split('-').pop()}-${m.name}-${m.form||''}`:null}
 function carryOwnership(list){const old={};CUSTOM.forEach(x=>{const k=sameKey(x);if(k)(old[k]=old[k]||[]).push(x.id)});const pairs=[];list.forEach(m=>{const k=sameKey(m);if(k&&old[k])old[k].forEach(oid=>{if(oid!==m.id)pairs.push([oid,m.id])})});if(!pairs.length)return;
   const fix=o=>{let ch=false;o.owned=o.owned||{};o.got=o.got||{};pairs.forEach(([a,b])=>{if(o.owned[a]&&!o.owned[b]){o.owned[b]=o.owned[a];o.got[b]=o.got[a]||Date.now();ch=true}});return ch};
   if(fix(S))save();P.list.forEach(p=>{if(p.id===P.cur)return;try{const o=JSON.parse(localStorage.getItem(keyFor(p.id))||'null');if(o&&fix(o))localStorage.setItem(keyFor(p.id),JSON.stringify(o))}catch(e){}})}
-function mergeCustom(list){carryOwnership(list);list.forEach(m=>{const i=CUSTOM.findIndex(x=>x.id===m.id);if(i>=0){URL.revokeObjectURL(CUSTOM[i].url);CUSTOM.splice(i,1)}m.url=URL.createObjectURL(m.blob);CUSTOM.push(m)});CUSTOM.sort(byOrder)}
+function mergeCustom(list){setTimeout(noteImgs,0);carryOwnership(list);list.forEach(m=>{const i=CUSTOM.findIndex(x=>x.id===m.id);if(i>=0){URL.revokeObjectURL(CUSTOM[i].url);CUSTOM.splice(i,1)}m.url=URL.createObjectURL(m.blob);CUSTOM.push(m)});CUSTOM.sort(byOrder)}
 $('#cSearch').addEventListener('input',()=>{cPage=0;renderParent()});
-$('#cDelAll').onclick=e=>armed(e.currentTarget,`もう一度押すと${CUSTOM.length}まい消えます`,()=>{CUSTOM.forEach(m=>URL.revokeObjectURL(m.url));CUSTOM=[];try{db&&db.transaction('mons','readwrite').objectStore('mons').clear()}catch(_){}renderParent()});
+$('#cDelAll').onclick=e=>armed(e.currentTarget,`もう一度押すと${CUSTOM.length}まい消えます`,()=>{CUSTOM.forEach(m=>URL.revokeObjectURL(m.url));CUSTOM=[];noteImgs();try{db&&db.transaction('mons','readwrite').objectStore('mons').clear()}catch(_){}renderParent()});
 
 
 const PAGE=24;let cPage=0;
@@ -1151,9 +1197,13 @@ $('#packList').addEventListener('change',()=>{const all=allPacks();const on=[...
 function targetPack(zipName){const v=($('#packName').value||'').trim();if(v)return v;if(zipName)return zipName.replace(/\.zip$/i,'').slice(0,30);return 'はじめの画像'}
 
 /* ---------- 仕上げ：保護者ゲート・時間・音・データ ---------- */
-function openGate(){const a=2+Math.floor(Math.random()*8),b=3+Math.floor(Math.random()*7),ans=a+b;const opts=new Set([ans]);while(opts.size<4)opts.add(ans+Math.floor(Math.random()*9)-4||ans+5);
-  $('#gateQ').textContent=`${a} ＋ ${b} ＝ ？`;$('#gateBtns').innerHTML=shuffle([...opts]).map(n=>`<button data-n="${n}">${n}</button>`).join('');$('#gateView').hidden=false;$('#gateView').dataset.ans=ans}
-$('#gateBtns').addEventListener('click',e=>{const b=e.target.closest('[data-n]');if(!b)return;$('#gateView').hidden=true;if(b.dataset.n===$('#gateView').dataset.ans)show('parent')});
+let gateIn='',gateQ='';
+function openGate(){const a=10+Math.floor(Math.random()*30),b=2+Math.floor(Math.random()*8);gateQ=`${a} ＋ ${b} ＝ `;gateIn='';$('#gateView').dataset.ans=String(a+b);
+  $('#gateBtns').innerHTML=[1,2,3,4,5,6,7,8,9,'',0,'けす'].map(n=>n===''?'<span></span>':`<button data-n="${n}">${n}</button>`).join('');gateShow();$('#gateView').hidden=false}
+function gateShow(){$('#gateQ').textContent=gateQ+(gateIn||'？')}
+$('#gateBtns').addEventListener('click',e=>{const b=e.target.closest('[data-n]');if(!b)return;const n=b.dataset.n,ans=$('#gateView').dataset.ans;
+  if(n==='けす'){gateIn=gateIn.slice(0,-1);gateShow();return}gateIn+=n;gateShow();if(gateIn.length<ans.length)return;
+  if(gateIn===ans){$('#gateView').hidden=true;show('parent')}else{chime('bad');setTimeout(openGate,350)}});
 $('#gateNo').onclick=()=>{$('#gateView').hidden=true};
 function timeUp(){const m=+S.settings.playMin||0;return m>0&&(S.day.ms||0)>=m*60000}
 function restNow(){hush();$('#restView').hidden=false;say('きょうは おしまい。 また あした あそぼうね！');return false}
@@ -1175,20 +1225,24 @@ $('#setVol').onchange=()=>{hush();say('せいかい！')};
 $('#setSfx').onchange=e=>{S.settings.sfx=e.target.checked;save()};
 $('#setBgm').onchange=e=>{S.settings.bgm=e.target.checked;save();if(e.target.checked)bgmStart();else bgmStop()};
 $('#setBgmVol').oninput=e=>{S.settings.bgmVol=+e.target.value;save()};
-function backupData(){const d={app:'mojigacha',ver:1,at:new Date().toISOString(),profiles:P,data:{}};P.list.forEach(p=>{try{d.data[p.id]=JSON.parse(localStorage.getItem(keyFor(p.id))||'null')}catch(e){}});if(d.data[P.cur]==null)d.data[P.cur]=S;else if(true)d.data[P.cur]=S;return JSON.stringify(d)}
-$('#bkSave').onclick=()=>{save();const txt=backupData();const name=`もじガチャ_バックアップ_${todayStr()}.json`;let ok=false;
+const b64=blob=>new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>rej(r.error);r.readAsDataURL(blob)});
+async function backupData(){const d={app:'mojigacha',ver:2,at:new Date().toISOString(),profiles:P,orig:ORIG,data:{},works:[]};P.list.forEach(p=>{try{d.data[p.id]=JSON.parse(localStorage.getItem(keyFor(p.id))||'null')}catch(e){}});d.data[P.cur]=S;
+  for(const m of CUSTOM.filter(x=>x.pack===WORKS&&x.blob)){try{d.works.push({id:m.id,name:m.name,by:m.by||'',date:m.date||'',rarity:m.rarity,added:m.added,img:await b64(m.blob)})}catch(e){}}return JSON.stringify(d)}
+$('#bkSave').onclick=async()=>{save();const txt=await backupData();const name=`もじガチャ_バックアップ_${todayStr()}.json`;let ok=false;
   try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type:'application/json'}));a.download=name;document.body.appendChild(a);a.click();a.remove();ok=true}catch(e){}
   const msg=$('#bkMsg');msg.hidden=false;msg.textContent=ok?`「${name}」を保存しました（ダウンロードに保存されない場合は、下の文字をすべてコピーしてメモ帳などに保存してください）。`:'下の文字をすべてコピーして保存してください。';
-  const ta=$('#bkText');ta.hidden=false;ta.value=txt};
+  const ta=$('#bkText');ta.hidden=txt.length>3e6;ta.value=ta.hidden?'':txt};
 $('#bkLoad').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;const msg=$('#bkMsg');msg.hidden=false;
-  try{const d=JSON.parse(await f.text());if(d.app!=='mojigacha'||!d.profiles||!d.data)throw new Error('もじガチャのバックアップではありません');
+  try{const d=JSON.parse(await f.text());if(d.app!=='mojigacha'||!d.profiles||!Array.isArray(d.profiles.list)||!d.profiles.list.length||!d.data)throw new Error('もじガチャのバックアップではありません');
+    if(!d.profiles.list.some(p=>p.id===d.profiles.cur))d.profiles.cur=d.profiles.list[0].id;if(d.orig){ORIG=String(d.orig).slice(0,30);try{localStorage.setItem('mojigacha.orig',ORIG)}catch(_){}}
+    let nw=0;if(Array.isArray(d.works)&&d.works.length&&db){const list=[];for(const w of d.works){try{const blob=await (await fetch(w.img)).blob();list.push({id:w.id,pack:WORKS,name:w.name,by:w.by,date:w.date,rarity:w.rarity||3,added:w.added||Date.now(),sort:0,blob,custom:true})}catch(e){}}if(list.length&&await putMany(list)){mergeCustom(list);nw=list.length}}
     P=d.profiles;saveProfiles();Object.entries(d.data).forEach(([id,v])=>{if(v)localStorage.setItem(keyFor(id),JSON.stringify(v))});
-    KEY=keyFor(P.cur);S=load();rollDay();updateCoins();updateWho();msg.textContent=`もどしました（${P.list.length}人分）。`;renderParent()}
+    KEY=keyFor(P.cur);S=load();rollDay();updateCoins();updateWho();msg.textContent=`もどしました（${P.list.length}人分`+(nw?`・さくひんの写真${nw}まい`:'')+'）。';renderParent()}
   catch(err){msg.textContent='もどせませんでした：'+(err.message||err)}};
 
 /* ---------- さくひん ---------- */
 const WORKS='さくひん';
-function renderWorks(){const sel=$('#wkBy');const v=sel.value;sel.innerHTML=P.list.map((p,i)=>`<option value="${p.id}">${esc(pname(p,i)||'あそぶひと')}</option>`).join('');sel.value=v||P.cur}
+function renderWorks(){const sel=$('#wkBy');const v=sel.value;sel.innerHTML=P.list.map((p,i)=>`<option value="${p.id}">${esc(pname(p,i)||'あそぶひと')}</option>`).join('');sel.value=P.list.some(p=>p.id===v)?v:P.cur}
 async function loadImg(file){const url=URL.createObjectURL(file);try{const img=new Image();img.decoding='async';await new Promise((res,rej)=>{img.onload=res;img.onerror=rej;img.src=url});return img}finally{setTimeout(()=>URL.revokeObjectURL(url),1000)}}
 // 白い余白を切り取り、明るさをそろえて、長い辺 900px の JPEG にする
 async function tidyPhoto(file){const img=await loadImg(file);const W0=img.naturalWidth,H0=img.naturalHeight;const sc=Math.min(1,600/Math.max(W0,H0));
@@ -1216,7 +1270,7 @@ async function addWork(file){if(!file)return;const msg=$('#wkMsg');msg.hidden=fa
   try{const blob=await tidyPhoto(file);const pid=$('#wkBy').value;const pi=P.list.findIndex(p=>p.id===pid);const by=pname(P.list[pi]||{},pi)||'';
     const dt=new Date();const date=`${dt.getMonth()+1}/${dt.getDate()}`;const name=($('#wkName').value||'').trim()||(by?`${by}の さくひん`:'さくひん');
     const m={id:'w'+Date.now().toString(36),pack:WORKS,name,by,date,rarity:3,blob,added:Date.now(),custom:true,url:URL.createObjectURL(blob),sort:0};
-    if(!await putMon(m))throw new Error('保存できませんでした');CUSTOM.push(m);ensurePackForAll(WORKS);
+    if(!await putMon(m))throw new Error('保存できませんでした');CUSTOM.push(m);noteImgs();ensurePackForAll(WORKS);
     $('#wkPrev').hidden=false;$('#wkPrev').innerHTML=`<img src="${m.url}" alt=""><span><b>${esc(name)}</b><br>${esc(by)} ${date}<br>★★★ でガチャに入りました</span>`;
     msg.textContent='追加しました。続けて撮れます。';$('#wkName').value='';renderProfiles()}
   catch(err){msg.textContent='追加できませんでした：'+(err&&err.message||err)}}
@@ -1263,18 +1317,31 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden)bgmStop()})
 
 /* ---------- グループ名の変更 ---------- */
 function renderGNames(){const packs=allPacks();$('#gNames').innerHTML=[`<label>（さいしょから入っている モンスター）<input type="text" data-gold="__orig" value="${esc(ORIG)}" enterkeyhint="done"></label>`].concat(packs.map(pk=>`<div class="gitem"><label>${CUSTOM.filter(m=>packOf(m)===pk).length}まい<input type="text" data-gold="${esc(pk)}" value="${esc(pk)}" enterkeyhint="done"></label><button class="sbtn warn" data-gdel="${esc(pk)}">このグループを削除</button></div>`)).join('')}
-function renamePackInProfiles(a,b){const fix=o=>{const l=o&&o.settings&&o.settings.packs;if(!Array.isArray(l)||!l.includes(a))return false;o.settings.packs=[...new Set(l.map(x=>x===a?b:x))];return true};
+function renamePackInProfiles(a,b){const fix=o=>{if(!o)return false;let ch=false;if(o.pick===a){o.pick=b;ch=true}const l=o.settings&&o.settings.packs;if(Array.isArray(l)&&l.includes(a)){o.settings.packs=[...new Set(l.map(x=>x===a?b:x))];ch=true}return ch};
   if(fix(S))save();P.list.forEach(p=>{if(p.id===P.cur)return;try{const o=JSON.parse(localStorage.getItem(keyFor(p.id))||'null');if(fix(o))localStorage.setItem(keyFor(p.id),JSON.stringify(o))}catch(e){}})}
 $('#gNames').addEventListener('change',async e=>{const inp=e.target.closest('[data-gold]');if(!inp)return;const old=inp.dataset.gold,nw=inp.value.trim().slice(0,30);
   if(!nw){inp.value=old==='__orig'?ORIG:old;return}
-  if(old==='__orig'){ORIG=nw;try{localStorage.setItem('mojigacha.orig',nw)}catch(_){}renderParent();return}
+  if(old==='__orig'){renamePackInProfiles(ORIG,nw);ORIG=nw;try{localStorage.setItem('mojigacha.orig',nw)}catch(_){}renderParent();return}
   if(nw===old)return;const list=CUSTOM.filter(m=>packOf(m)===old);list.forEach(m=>m.pack=nw);await putMany(list);renamePackInProfiles(old,nw);if(zGroup===old)zGroup=nw;renderParent()});
 
 $('#gNames').addEventListener('click',e=>{const b=e.target.closest('[data-gdel]');if(!b)return;const pk=b.dataset.gdel;const list=CUSTOM.filter(m=>packOf(m)===pk);
-  armed(b,`もう一度押すと ${list.length}まい 消えます`,()=>{list.forEach(m=>{try{URL.revokeObjectURL(m.url)}catch(_){}delMon(m.id)});CUSTOM=CUSTOM.filter(m=>packOf(m)!==pk);
+  armed(b,pk===WORKS?`もう一度押すと 写真${list.length}まいが消えます（もとに戻せません）`:`もう一度押すと ${list.length}まい 消えます`,()=>{list.forEach(m=>{try{URL.revokeObjectURL(m.url)}catch(_){}});delMany(list.map(m=>m.id));CUSTOM=CUSTOM.filter(m=>packOf(m)!==pk);noteImgs();
     const fix=o=>{const l=o&&o.settings&&o.settings.packs;if(!Array.isArray(l)||!l.includes(pk))return false;o.settings.packs=l.filter(x=>x!==pk);return true};
     if(fix(S))save();P.list.forEach(p=>{if(p.id===P.cur)return;try{const o=JSON.parse(localStorage.getItem(keyFor(p.id))||'null');if(fix(o))localStorage.setItem(keyFor(p.id),JSON.stringify(o))}catch(_){}});
     if(zGroup===pk)zGroup='';renderParent()})});
+
+/* ---------- ガチャえらび（バナー） ---------- */
+const BCOL=['#FF7A4D','#4A8BFF','#1FA864','#B061E8','#F2B705','#F24E4E'];
+function renderBanners(){if(!CUSTOM_READY&&expectedImgs()){$('#pickList').innerHTML='<p class="zempty">じゅんび ちゅう… すこし まってね</p>';return}const p=pool();const groups=gachaGroups();const list=[{g:'',name:'みんなの ガチャ',items:p}].concat(groups.map(g=>({g,name:`${g} ガチャ`,items:p.filter(m=>groupOf(m)===g)})));
+  $('#pickList').innerHTML=list.map((b,i)=>{const own=b.items.filter(m=>S.owned[m.id]).length,tot=b.items.length;
+    const prev=b.items.slice().sort((x,y)=>(y.rarity-x.rarity)||((S.owned[x.id]?1:0)-(S.owned[y.id]?1:0))).slice(0,5);
+    return `<button class="banner${S.pick===b.g?' on':''}" data-bn="${esc(b.g)}" style="--bc:${BCOL[i%BCOL.length]}">
+      <span class="bhead"><span class="bname">${esc(b.name)}</span>${S.pick===b.g?'<span class="bnow">いまの ガチャ</span>':''}</span>
+      <span class="bthumbs">${prev.map(m=>`<span class="bt r${m.rarity}">${artHTML(m)}${S.owned[m.id]?'':'<i class="bnew">まだ</i>'}</span>`).join('')}</span>
+      <span class="bfoot"><span class="bbar"><i style="width:${tot?own/tot*100:0}%"></i></span><span class="bcnt">${own} / ${tot}</span>${own===tot&&tot?'<span class="bdone">コンプリート！</span>':''}</span>
+      <span class="bgo">この ガチャを まわす ▶</span></button>`}).join('')}
+$('#pickList').addEventListener('click',e=>{const b=e.target.closest('[data-bn]');if(!b)return;S.pick=b.dataset.bn;save();chime('coin');show('gacha')});
+$('#persistBtn').onclick=async()=>{try{const ok=navigator.storage&&navigator.storage.persist?await navigator.storage.persist():false;$('#imgLine').textContent+=ok?'　→ オンになりました':'　→ この端末ではオンにできませんでした（ホーム画面に追加したアプリから開くとオンになりやすくなります）'}catch(e){}};
 /* ---------- 起動 ---------- */
 rollDay();updateCoins();updateWho();show('who');loadCustom();
 </script>
